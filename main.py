@@ -1,3 +1,5 @@
+from random import shuffle #pentru a genera un alfabet aleator
+
 def caesar(text, key):
     rez = ""
     key = key % 26 #pentru a nu depasi 26, acela fiind numarul de litere din alfabet
@@ -99,6 +101,55 @@ def vigenere_decrypt(text, key):  #la fel ca la criptare, insa scadem shift-ul
     return rez
 
 
+def alfabet_aleator():    #functie pentru generare de alfabet aleator
+    alf = list("abcdefghijklmnopqrstuvwxyz")
+    shuffle(alf)
+    return alf
+
+
+def substitutie(text,alf):
+    rez = ""
+
+    for char in text:
+        if char.islower():
+            index = ord(char) - ord('a')  #calculam indexul literei in alfabetul normal
+            rez += alf[index] #adaugam litera din alfabetul aleator la rezultat
+        elif char.isupper():
+            index = ord(char) - ord('A') #la fel ca la litere mici
+            rez += alf[index].upper()
+        else:
+            rez += char
+    return rez
+
+
+def substitutie_decrypt(text,alf):
+    rez = ""
+
+    for char in text:
+        if char.islower():
+            index = alf.index(char)  #aflam indexul literei in alfabetul aleator 
+            rez += chr(index + ord('a'))  #adaugam litera din alfabetul normal la rezultat
+        elif char.isupper(): 
+            index = alf.index(char.lower()) #la fel ca la litere mici
+            rez += chr(index + ord('A'))
+        else:
+            rez += char
+    return rez
+
+
+def xor(text, key):
+    rez = ""
+    j = 0
+
+    for char in text:
+        charnou = chr(ord(char) ^ ord(key[j]))  #aplicam XOR intre codul ASCII al caracterului si cel al caracterului din cheie
+        rez += charnou
+        j += 1   
+        if j == len(key):  #daca am ajuns la finalul cheii, resetam indexul
+            j = 0
+    return rez
+
+
 #test
 print("Caesar test:")
 print(caesar("Hello, World!", 3))
@@ -110,3 +161,18 @@ print(caesardecrypt("Fcjjm, Umpjb!", 50))
 print("\nVigenere test:")
 print(vigenere("Hello, World!", "key"))
 print(vigenere_decrypt("Rijvs, Uyvjn!", "key"))
+
+print("\nSubstitutie test:")
+alf = alfabet_aleator()
+print("Alfabet standard: abcdefghijklmnopqrstuvwxyz")
+print("Alfabet aleator:", ''.join(alf))
+text_criptat = substitutie("Hello,World!", alf)
+print(text_criptat)
+print(substitutie_decrypt(text_criptat, alf))
+
+print("\nXOR test (fara Base64):")
+criptat = xor("Hello,World!", "key")
+print(criptat)
+decriptat = xor(criptat, "key")
+print(decriptat)
+

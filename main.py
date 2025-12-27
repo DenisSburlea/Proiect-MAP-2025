@@ -22,7 +22,7 @@ def caesar(text, key):
     return rez
 
 
-def caesardecrypt(text, key):     #la fel ca la criptare, insa scadem cheia
+def caesar_decrypt(text, key):     #la fel ca la criptare, insa scadem cheia
     rez = ""
     key = key % 26
 
@@ -41,6 +41,11 @@ def caesardecrypt(text, key):     #la fel ca la criptare, insa scadem cheia
         else:
             rez += char
     return rez
+
+
+def caesar_brute_force(text):
+    for key in range(0,26): #incercam toate cele 26 de chei posibile
+        print("Shift ", key, ": ", caesar_decrypt(text, key))
 
 
 def vigenere(text, key):
@@ -155,12 +160,17 @@ print("Caesar test:")
 print(caesar("Hello, World!", 3))
 print(caesar("Hello, World!", 50))
 
-print(caesardecrypt("Khoor, Zruog!", 3))
-print(caesardecrypt("Fcjjm, Umpjb!", 50))
+print(caesar_decrypt("Khoor, Zruog!", 3))
+print(caesar_decrypt("Fcjjm, Umpjb!", 50))
+
+print("\nCaesar brute force test:")
+caesar_brute_force("Khoor, Zruog!")
+
 
 print("\nVigenere test:")
 print(vigenere("Hello, World!", "key"))
 print(vigenere_decrypt("Rijvs, Uyvjn!", "key"))
+
 
 print("\nSubstitutie test:")
 alf = alfabet_aleator()
@@ -170,9 +180,9 @@ text_criptat = substitutie("Hello,World!", alf)
 print(text_criptat)
 print(substitutie_decrypt(text_criptat, alf))
 
+
 print("\nXOR test (fara Base64):")
 criptat = xor("Hello,World!", "key")
 print(criptat)
 decriptat = xor(criptat, "key")
 print(decriptat)
-

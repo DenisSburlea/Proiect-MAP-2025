@@ -155,6 +155,43 @@ def xor(text, key):
     return rez
 
 
+def base64_encode(text):
+    base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" #alfabetul codarii Base64
+    rez = ""
+    string_binar = ""
+
+    for char in text:
+        string_binar += format(ord(char), '08b') #transformam fiecare caracter in binar pe 8 biti si adaugam la o variabila
+    
+    while len(string_binar) % 6 != 0:  #adaugam 0 ca si padding daca lungimea nu e multiplu de 6
+        string_binar += "0"
+
+    for i in range(0, len(string_binar), 6):  
+        segment = string_binar[i:i+6] #impartim sirul binar in segmente de cate 6 biti
+        index = int(segment,2)   #transformam segmentul din baza 2 (binar) in baza 10 (int)
+        rez += base64_alphabet[index]  #adugam caracterul corespunzator din alfabetul Base64 la rez
+    
+    while len(rez) % 4 != 0: #adaugam '=' ca si padding daca lungimea nu e multiplu de 4
+        rez += "="
+    
+    return rez
+
+def base64_decode(text):
+    base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    rez = ""
+    string_binar = ""
+
+    text = text.replace("=", "")  #inalturam padding-ul
+
+    for char in text:
+        index = base64_alphabet.index(char)  #aflam indexul fiecarul caracter din text
+        string_binar += format(index, '06b') #transformam indexul in binar pe 6 biti si adaugam la o variabila
+    
+    for i in range(0, len(string_binar), 8):  
+        segment = string_binar[i:i+8] #impartim sirul binar in segmente de cate 8 biti
+        rez += chr(int(segment,2)) #transformam segmentul din baza 2 (binar) in caracter
+    
+    return rez
 #test
 print("Caesar test:")
 print(caesar("Hello, World!", 3))
@@ -186,3 +223,7 @@ criptat = xor("Hello,World!", "key")
 print(criptat)
 decriptat = xor(criptat, "key")
 print(decriptat)
+
+print("\nXOR test (cu Base64):")
+print(base64_encode(criptat))
+print(base64_decode(base64_encode(criptat)))

@@ -43,10 +43,42 @@ def caesar_decrypt(text, key):     #la fel ca la criptare, insa scadem cheia
     return rez
 
 
-def caesar_brute_force(text):
-    for key in range(0,26): #incercam toate cele 26 de chei posibile
-        print("Shift ", key, ": ", caesar_decrypt(text, key))
+def frequence(text):
+    english_freq = "etaoinsrhdlucmfywgpbvkxqjz" #cele mai frecvente litere in limba engleza
+    vowels = "aeiou" #vocalele in limba engleza     
+    scor = 0 #scor de frecventa
 
+    for char in text.lower():
+        if char in english_freq[:12]: #primele 12 litere cele mai frecvente
+            scor += 3
+        elif char in english_freq[:18]: #primele 18 litere cele mai frecvente
+            scor += 2
+        else: #litere mai putin frecvente
+            scor -= 3
+        
+        if char in vowels: #bonus pentru vocale
+            scor += 2
+            
+    return scor
+
+def caesar_brute_force(text):
+    best_scor = -1
+    best_decrypt = ""
+    best_shift = 0 
+
+    for key in range(26): #incercam toate cele 26 de deplasari posibile 
+        decrypted = caesar_decrypt(text,key)
+        scor = frequence(decrypted)
+
+        if scor > best_scor: #daca gasim un scor mai bun, actualizam best-urile
+            best_scor = scor
+            best_decrypt = decrypted
+            best_shift = key
+            
+        print("Shift: ", key, decrypted) #afisam toate decriptarile
+    
+    print(f'\nRezultat posibil: "{best_decrypt}" cu deplasament {best_shift}') #afisam cea mai probabila decriptare
+    
 
 def vigenere(text, key):
     rez = ""
@@ -201,7 +233,7 @@ print(caesar_decrypt("Khoor, Zruog!", 3))
 print(caesar_decrypt("Fcjjm, Umpjb!", 50))
 
 print("\nCaesar brute force test:")
-caesar_brute_force("Khoor, Zruog!")
+caesar_brute_force("Zruog!")
 
 
 print("\nVigenere test:")

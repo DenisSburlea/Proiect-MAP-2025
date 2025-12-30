@@ -1,4 +1,5 @@
 from random import shuffle #pentru a genera un alfabet aleator
+from pathlib import Path  #pentru a lucra cu cai de fisiere
 
 def caesar(text, key):
     rez = ""
@@ -224,6 +225,15 @@ def base64_decode(text):
         rez += chr(int(segment,2)) #transformam segmentul din baza 2 (binar) in caracter
     
     return rez
+
+def read_file(filepath):
+    with open(filepath, "r") as f:
+        return f.read()
+    
+def write_file(filepath,text):
+    with open(filepath, "w") as f:
+        f.write(text)
+
 #test
 print("Caesar test:")
 print(caesar("Hello, World!", 3))
@@ -259,3 +269,16 @@ print(decriptat)
 print("\nXOR test (cu Base64):")
 print(base64_encode(criptat))
 print(base64_decode(base64_encode(criptat)))
+
+print("\nFisere test:")
+
+Base_Dir = Path(__file__).resolve().parent
+Test_Dir = Base_Dir.parent / "test"
+
+input_path = Test_Dir / "input_text.txt"
+output_path = Test_Dir / "output_text.txt"
+
+text = read_file(input_path)
+criptat = caesar(text,5)
+
+write_file(output_path,criptat)

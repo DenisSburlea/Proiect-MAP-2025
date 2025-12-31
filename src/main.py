@@ -1,6 +1,6 @@
 from random import shuffle #pentru a genera un alfabet aleator
 from pathlib import Path  #pentru a lucra cu cai de fisiere
-
+import secrets #pentru a genera chei sigure
 def caesar(text, key):
     rez = ""
     key = key % 26 #pentru a nu depasi 26, acela fiind numarul de litere din alfabet
@@ -234,6 +234,13 @@ def write_file(filepath,text):
     with open(filepath, "w") as f:
         f.write(text)
 
+def generate_key(length):
+    alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    key = ""
+    for _ in range(length):
+        key += secrets.choice(alphabet)
+    
+    return key
 #test
 print("Caesar test:")
 print(caesar("Hello, World!", 3))
@@ -282,3 +289,6 @@ text = read_file(input_path)
 criptat = caesar(text,5)
 
 write_file(output_path,criptat)
+
+print("Test cheie sigura:")
+print(generate_key(16))

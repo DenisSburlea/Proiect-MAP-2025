@@ -1,6 +1,8 @@
 from random import shuffle #pentru a genera un alfabet aleator
 from pathlib import Path  #pentru a lucra cu cai de fisiere
 import secrets #pentru a genera chei sigure
+import argparse #pentru a lucra cu argumente din linia de comanda
+
 def caesar(text, key):
     rez = ""
     key = key % 26 #pentru a nu depasi 26, acela fiind numarul de litere din alfabet
@@ -65,21 +67,22 @@ def frequence(text):
 def caesar_brute_force(text):
     best_scor = -1
     best_decrypt = ""
-    best_shift = 0 
+    best_shift = 0
+    output = "" 
 
     for key in range(26): #incercam toate cele 26 de deplasari posibile 
         decrypted = caesar_decrypt(text,key)
         scor = frequence(decrypted)
+        
+        output += f"Shift {key}: {decrypted}\n"
 
         if scor > best_scor: #daca gasim un scor mai bun, actualizam best-urile
             best_scor = scor
             best_decrypt = decrypted
             best_shift = key
             
-        print("Shift: ", key, decrypted) #afisam toate decriptarile
-    
-    print(f'\nRezultat posibil: "{best_decrypt}" cu deplasament {best_shift}') #afisam cea mai probabila decriptare
-    
+    output += f'\nRezultat posibil: "{best_decrypt}" cu deplasament {best_shift}' #cea mai probabila decriptare
+    return output
 
 def vigenere(text, key):
     rez = ""
@@ -226,13 +229,17 @@ def base64_decode(text):
     
     return rez
 
+
 def read_file(filepath):
     with open(filepath, "r") as f:
         return f.read()
-    
-def write_file(filepath,text):
-    with open(filepath, "w") as f:
+
+
+def write_file(filepath,text, append=False):
+    mode = "a" if append else "w"
+    with open(filepath, mode) as f:
         f.write(text)
+
 
 def generate_key(length):
     alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -241,54 +248,132 @@ def generate_key(length):
         key += secrets.choice(alphabet)
     
     return key
-#test
-print("Caesar test:")
-print(caesar("Hello, World!", 3))
-print(caesar("Hello, World!", 50))
 
-print(caesar_decrypt("Khoor, Zruog!", 3))
-print(caesar_decrypt("Fcjjm, Umpjb!", 50))
+def main():
+    parser = argparse.ArgumentParser(description = "Cryptography App")
 
-print("\nCaesar brute force test:")
-caesar_brute_force("Zruog!")
+    #adaugare de argumente
+    parser.add_argument("action", nargs = "?", 
+                        choices=["encrypt", "decrypt"], 
+                        help = "Actiune de criptare/decriprare") 
+    
+    parser.add_argument("text", nargs = "?", 
+                        help = "Text de criptat/decriptat")
+    
+    parser.add_argument("--algo", choices=["caesar", "vigenere", "substitutie", "xor"],
+                         help = "Algoritm")
+    
+    parser.add_argument("--key", 
+                        help = "Cheie pentru algoritm")
 
+    parser.add_argument("--file", 
+                        help = "Fiser de intrare")
 
-print("\nVigenere test:")
-print(vigenere("Hello, World!", "key"))
-print(vigenere_decrypt("Rijvs, Uyvjn!", "key"))
+    parser.add_argument("--output", 
+                        help = "Fisier de iesire")
 
+    parser.add_argument("--brute_force", 
+                        help = "Brute force pentru Caesar")
+    
+    parser.add_argument("--generate_key", 
+                        action = "store_true", 
+                        help = "Generare cheie sigura")
+    
+    parser.add_argument("--length", 
+                        type=int,
+                        help="Lungimea cheii")
+    
+    parser.add_argument("--count",
+                        type=int,
+                        default=1,
+                        help="Numar de chei de generat")
 
-print("\nSubstitutie test:")
-alf = alfabet_aleator()
-print("Alfabet standard: abcdefghijklmnopqrstuvwxyz")
-print("Alfabet aleator:", ''.join(alf))
-text_criptat = substitutie("Hello,World!", alf)
-print(text_criptat)
-print(substitutie_decrypt(text_criptat, alf))
+    args = parser.parse_args()
 
+    #gestionare generare chei
+    if args.generate_key:
+        length = args.length if args.length else 16
+        count = args.count if args.count else 1
 
-print("\nXOR test (fara Base64):")
-criptat = xor("Hello,World!", "key")
-print(criptat)
-decriptat = xor(criptat, "key")
-print(decriptat)
+        if args.output:
+            for _ in range(count):
+                key = generate_key(length)
+                write_file(args.output, key + "\n", append=True)
+            print(f"{count} chei generate si salvate in fisierul {args.output}")
+        else:
+            for _ in range(count):
+                key = generate_key(length)
+                print(key)
 
-print("\nXOR test (cu Base64):")
-print(base64_encode(criptat))
-print(base64_decode(base64_encode(criptat)))
+        return
+    
+    #gestionare brute force Caesar
+    if args.brute_force:
+        if args.algo and args.algo != "caesar":
+            print("Brute force este disponibil doar pentru algoritmul Caesar.")
+            return
+        
+        text = caesar_brute_force(args.brute_force)
 
-print("\nFisere test:")
+        if args.output:
+            write_file(args.output, text)
+            print(f"Rezultatul a fost salvat in fisierul {args.output}")
+        else:
+            print(text)
+        return
+    
+    #daca nu s-a specificat actiunea, afisam help-ul
+    if not args.action:
+        parser.print_help()
+        return
+    
+    
+    if not args.file and not args.text:
+        print("Trebuie sa specifici fie fisier de input fie text.")
+        return
+    
+    input_text = read_file(args.file) if args.file else args.text #citim textul de intrare din fisier sau din linia de comanda
 
-Base_Dir = Path(__file__).resolve().parent
-Test_Dir = Base_Dir.parent / "test"
+    if args.algo == "caesar": #gestionare algoritm Caesar
+        key = int(args.key) if args.key else 3
+        result = caesar(input_text,key) if args.action == "encrypt" else caesar_decrypt(input_text,key)
 
-input_path = Test_Dir / "input_text.txt"
-output_path = Test_Dir / "output_text.txt"
+    elif args.algo == "vigenere": #gestionare algoritm Vigenere
+        if not args.key:
+            print("Cheia este necesara pentru algoritmul Vigenere.")
+            return
+        
+        result = vigenere(input_text,args.key) if args.action == "encrypt" else vigenere_decrypt(input_text,args.key)
 
-text = read_file(input_path)
-criptat = caesar(text,5)
+    elif args.algo == "substitutie": #gestionare algoritm Substitutie
+        if args.key:
+            if len(args.key) != 26:
+                print("Cheia pentru substitutie trebuie sa aiba 26 de caractere.")
+                return
+            key = args.key
+        else:
+            key = ''.join(alfabet_aleator())
+            print(f"Alfabetul aleator generat: {key}")
+        
+        result = substitutie(input_text,key) if args.action == "encrypt" else substitutie_decrypt(input_text,key)
 
-write_file(output_path,criptat)
+    elif args.algo == "xor": #gestionare algoritm XOR
+        if not args.key:
+            print("Cheia este necesara pentru algoritmul XOR.")
+            return
+        if args.action == "encrypt":
+            resultxor = xor(input_text,args.key)
+            result = base64_encode(resultxor)
+        else:
+            resultdecode = base64_decode(input_text)
+            result = xor(resultdecode,args.key)
 
-print("Test cheie sigura:")
-print(generate_key(16))
+    if args.output: #salvare rezultat in fisier sau afisare in consola
+        write_file(args.output, result)
+        print(f"Rezultatul a fost salvat in fisierul {args.output}")
+    else:
+        print(result)
+    
+
+if __name__ == "__main__":
+    main()

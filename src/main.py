@@ -289,6 +289,10 @@ def main():
                         help="Numar de chei de generat")
 
     args = parser.parse_args()
+    Base_Dir = Path(__file__).resolve().parent
+
+    Output_dir = Base_Dir.parent / "tests"
+    Output_file = Output_dir / args.output if args.output else None
 
     #gestionare generare chei
     if args.generate_key:
@@ -298,7 +302,7 @@ def main():
         if args.output:
             for _ in range(count):
                 key = generate_key(length)
-                write_file(args.output, key + "\n", append=True)
+                write_file(Output_file, key + "\n", append=True)
             print(f"{count} chei generate si salvate in fisierul {args.output}")
         else:
             for _ in range(count):
@@ -316,8 +320,8 @@ def main():
         text = caesar_brute_force(args.brute_force)
 
         if args.output:
-            write_file(args.output, text)
-            print(f"Rezultatul a fost salvat in fisierul {args.output}")
+            write_file(Output_file, text)
+            print(f"Rezultatul a fost salvat in fisierul {Output_file}")
         else:
             print(text)
         return
@@ -327,12 +331,14 @@ def main():
         parser.print_help()
         return
     
-    
+
     if not args.file and not args.text:
         print("Trebuie sa specifici fie fisier de input fie text.")
         return
     
-    input_text = read_file(args.file) if args.file else args.text #citim textul de intrare din fisier sau din linia de comanda
+    Test_dir = Base_Dir.parent / "tests"
+    Test_file = Test_dir / args.file if args.file else None
+    input_text = read_file(Test_file) if Test_file else args.text #citim textul de intrare din fisier sau din linia de comanda
 
     if args.algo == "caesar": #gestionare algoritm Caesar
         key = int(args.key) if args.key else 3
@@ -369,8 +375,8 @@ def main():
             result = xor(resultdecode,args.key)
 
     if args.output: #salvare rezultat in fisier sau afisare in consola
-        write_file(args.output, result)
-        print(f"Rezultatul a fost salvat in fisierul {args.output}")
+        write_file(Output_file, result)
+        print(f"Rezultatul a fost salvat in fisierul {Output_file}")
     else:
         print(result)
     

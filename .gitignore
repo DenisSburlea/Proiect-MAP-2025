@@ -128,3 +128,6 @@ dmypy.json
 *.swp
 *.swo
 *~
+
+# Test output directory
+tests/output.txt

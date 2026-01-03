@@ -6,4 +6,6 @@ COPY src/main.py ./
 
 RUN chmod +x main.py
 
-CMD ["./main.py", "--help"]
+ENTRYPOINT [ "./main.py" ]
+
+CMD ["--help"]

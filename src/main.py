@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from random import shuffle #pentru a genera un alfabet aleator
 from pathlib import Path  #pentru a lucra cu cai de fisiere
 import secrets #pentru a genera chei sigure
@@ -289,10 +290,12 @@ def main():
                         help="Numar de chei de generat")
 
     args = parser.parse_args()
-    Base_Dir = Path(__file__).resolve().parent
 
-    Output_dir = Base_Dir.parent / "tests"
-    Output_file = Output_dir / args.output if args.output else None
+
+    output_path = Path(args.output) if args.output else None
+    if output_path:
+        if not output_path.parent.exists():
+            output_path = Path(__file__).resolve().parent / args.output
 
     #gestionare generare chei
     if args.generate_key:
@@ -302,7 +305,7 @@ def main():
         if args.output:
             for _ in range(count):
                 key = generate_key(length)
-                write_file(Output_file, key + "\n", append=True)
+                write_file(output_path, key + "\n", append=True)
             print(f"{count} chei generate si salvate in fisierul {args.output}")
         else:
             for _ in range(count):
@@ -320,8 +323,8 @@ def main():
         text = caesar_brute_force(args.brute_force)
 
         if args.output:
-            write_file(Output_file, text)
-            print(f"Rezultatul a fost salvat in fisierul {Output_file}")
+            write_file(output_path, text)
+            print(f"Rezultatul a fost salvat in fisierul {output_path}")
         else:
             print(text)
         return
@@ -336,9 +339,24 @@ def main():
         print("Trebuie sa specifici fie fisier de input fie text.")
         return
     
-    Test_dir = Base_Dir.parent / "tests"
-    Test_file = Test_dir / args.file if args.file else None
-    input_text = read_file(Test_file) if Test_file else args.text #citim textul de intrare din fisier sau din linia de comanda
+    input_path = Path(args.file) if args.file else None
+    input_text = None
+
+    if input_path:
+        if input_path.is_file():
+            input_text = read_file(input_path)
+        else:
+            local_file = Path(__file__).resolve().parent / args.file
+            if local_file.is_file():
+                input_text = read_file(local_file)
+            else:
+                print(f"Fisierul '{args.file}' nu exista nici în locatia data, nici langa main.py.")
+                return
+    elif args.text:
+        input_text = args.text
+    else:
+        print("Trebuie să specifici fie --file fie textul direct cu --text.")
+        return
 
     if args.algo == "caesar": #gestionare algoritm Caesar
         key = int(args.key) if args.key else 3
@@ -374,9 +392,9 @@ def main():
             resultdecode = base64_decode(input_text)
             result = xor(resultdecode,args.key)
 
-    if args.output: #salvare rezultat in fisier sau afisare in consola
-        write_file(Output_file, result)
-        print(f"Rezultatul a fost salvat in fisierul {Output_file}")
+    if output_path:
+        write_file(output_path,result)
+        print(f"Rezultatul a fost salvat în: {output_path}")
     else:
         print(result)
     

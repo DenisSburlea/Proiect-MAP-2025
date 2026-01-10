@@ -122,8 +122,10 @@ Testarea a fost realizata manual prin rularea comenzilor CLI pentru:
  - brute_force
 
 ## Docker
-### Build imagine
+### Build imagine local
     docker build -t crypto-app .
+### Build imagine direct din github
+    docker build -t crypto-app https://github.com/DenisSburlea/Proiect-MAP-2025.git
 ### Rulare container
     docker run crypto-app --help
 

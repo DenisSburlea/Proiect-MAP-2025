@@ -126,8 +126,10 @@ Testarea a fost realizata manual prin rularea comenzilor CLI pentru:
     docker build -t crypto-app .
 ### Build imagine direct din github
     docker build -t crypto-app https://github.com/DenisSburlea/Proiect-MAP-2025.git
-### Rulare container
+### Rulare imagine
     docker run crypto-app --help
+### Rulare imagine direct din Docker (fara a mai da build)
+    docker run denissburlea/crpytography-app
 
 # Resurse folosite
  - **Python Official Documentation**

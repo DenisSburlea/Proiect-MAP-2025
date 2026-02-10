@@ -129,7 +129,7 @@ Testarea a fost realizata manual prin rularea comenzilor CLI pentru:
 ### Rulare imagine
     docker run crypto-app --help
 ### Rulare imagine direct din Docker (fara a mai da build)
-    docker run denissburlea/crpytography-app
+    docker run denissburlea/cryptography-app
 
 # Resurse folosite
  - **Python Official Documentation**
